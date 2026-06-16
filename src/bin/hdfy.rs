@@ -5,7 +5,7 @@ use std::time::Instant;
 use std::fs::read_dir;
 
 use clap::Parser;
-use h5rio::{ArrayHdf5Writer, TableHdf5Writer};
+use h5rio::{ArrayHdf5Writer, TableHdf5Writer, write_chunked_array};
 use hdf5_metno as hdf5;
 use ndarray::Array;
 
@@ -66,9 +66,8 @@ pub fn main() -> Result<()> {
     let nsamples  = read_waveform_length(input_files.first().unwrap());
     let nchannels = args.channels.len();
 
-    let  evt_writer = TableHdf5Writer::<DaqEventMeta>::new(Rc::clone(&ofile), "/events"   , 1024                           ).unwrap();
-    let time_writer = ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/time"     ,    1, vec![nsamples]           ).unwrap();
-    let   wf_writer = ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/waveforms",  512, vec![nchannels, nsamples]).unwrap();
+    let evt_writer = TableHdf5Writer::<DaqEventMeta>::new(Rc::clone(&ofile), "/events"   , 1024                           ).unwrap();
+    let  wf_writer = ArrayHdf5Writer::<         f32>::new(Rc::clone(&ofile), "/waveforms",  512, vec![nchannels, nsamples]).unwrap();
 
     println!("Initialization time: {:?}", timer.elapsed().as_secs_f64());
 
@@ -92,7 +91,7 @@ pub fn main() -> Result<()> {
 
     let time = (0..nsamples).map(|k| k as f32 * sampling_time)
                             .collect::<Vec<_>>();
-    time_writer.write(Array::from_vec(time))?;
+    write_chunked_array(Rc::clone(&ofile), "/time"    , vec![nsamples ], &Array::from_vec(time))?;
 
     let exe_time = timer.elapsed().as_secs_f64();
     println!( "Execution time for {} files: {:.2} s => {:.1} files/s or {:.8} s/file"
