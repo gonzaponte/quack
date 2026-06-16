@@ -7,15 +7,7 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.35", features = ["derive"] }
-config = "0.15.11"
-float_eq = "1.0.1"
-h5rio = "0.1.0"
+h5rio = "0.3.0"
 hdf5_metno = { package = "hdf5-metno", version = "0.12.3" , features=["blosc-zlib"]}
 indicatif = "0.17.11"
-itertools = "0.14.0"
 ndarray = "0.17.2"
-pretty_assertions = "1.4.1"
-rayon = "1.10.0"
-serde = { version = "1.0", features = ["derive"] }
-tempfile = "3.19.1"
-toml = "0.8.20"
