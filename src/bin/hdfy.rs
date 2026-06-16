@@ -92,6 +92,7 @@ pub fn main() -> Result<()> {
     let time = (0..nsamples).map(|k| k as f32 * sampling_time)
                             .collect::<Vec<_>>();
     write_chunked_array(Rc::clone(&ofile), "/time"    , vec![nsamples ], &Array::from_vec(time))?;
+    write_chunked_array(Rc::clone(&ofile), "/channels", vec![nchannels], &Array::from_vec(args.channels))?;
 
     let exe_time = timer.elapsed().as_secs_f64();
     println!( "Execution time for {} files: {:.2} s => {:.1} files/s or {:.8} s/file"
