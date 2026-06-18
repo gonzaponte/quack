@@ -42,12 +42,12 @@ pub fn main() -> Result<()> {
     let input = Path::new(&args.input);
 
     if !input.exists() {
-        panic!("{}", &format!("Input folder {input:?} does not exist!"));
+        panic!("{}", &format!("Input folder {input:?} does not exist."));
     }
 
     let output = Path::new(&args.output);
     if output.exists() & !args.overwrite {
-        panic!("Output file already exists! Use --overwrite to overwrite it.");
+        panic!("Output file already exists. Use --overwrite to overwrite it.");
     }
 
     let input_files = read_dir(input).unwrap()
@@ -59,6 +59,10 @@ pub fn main() -> Result<()> {
                                      )
                                      .collect::<Vec<_>>();
     let n_files = input_files.len();
+
+    if n_files == 0 {
+        panic!("Input folder is empty.");
+    }
 
     let ofile  = hdf5::File::create(&output.to_str().unwrap()).unwrap();
     let ofile  = Rc::new(ofile);
