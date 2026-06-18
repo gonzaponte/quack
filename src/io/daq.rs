@@ -77,3 +77,63 @@ pub fn read_daq_file(filename: &str, channels: &Vec<usize>) -> Result<Vec<DaqEve
             .collect()
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{get_channels, get_token, read_daq_file, read_event, read_waveform_length};
+
+    const TINY_DAQ: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/data/tiny.daq");
+    const TINY_EVENT: &str = "\
+7
+Timestamp 123
+Samples 2
+Sampling time is 0.5
+Header ignored
+0 1.0 2.0 3.0
+1 4.0 5.0 6.0
+";
+
+    #[test]
+    fn gets_token_by_index() {
+        assert_eq!(get_token::<u32>("Samples 2", 1, "number of samples"), 2);
+    }
+
+    #[test]
+    fn gets_selected_channels_from_waveform_line() {
+        let values = get_channels("0 1.0 2.0 3.0", &vec![0, 2]).collect::<Vec<_>>();
+
+        assert_eq!(values, vec![1.0, 3.0]);
+    }
+
+    #[test]
+    fn reads_waveform_length_from_header() {
+        assert_eq!(read_waveform_length(TINY_DAQ), 2);
+    }
+
+    #[test]
+    fn reads_event_chunk() {
+        let event = read_event(TINY_EVENT, &vec![1]);
+
+        assert_eq!(event.number, 7);
+        assert_eq!(event.time, 123);
+        assert_eq!(event.sampling, 0.5);
+        assert_eq!(event.waveforms.shape(), &[1, 2]);
+        assert_eq!(event.waveforms[[0, 0]], 2.0);
+        assert_eq!(event.waveforms[[0, 1]], 5.0);
+    }
+
+    #[test]
+    fn reads_selected_channels_from_event_file() {
+        let events = read_daq_file(TINY_DAQ, &vec![0, 2]).unwrap();
+
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].number, 7);
+        assert_eq!(events[0].time, 123);
+        assert_eq!(events[0].sampling, 0.5);
+        assert_eq!(events[0].waveforms.shape(), &[2, 2]);
+        assert_eq!(events[0].waveforms[[0, 0]], 1.0);
+        assert_eq!(events[0].waveforms[[0, 1]], 4.0);
+        assert_eq!(events[0].waveforms[[1, 0]], 3.0);
+        assert_eq!(events[0].waveforms[[1, 1]], 6.0);
+    }
+}
