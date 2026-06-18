@@ -50,14 +50,15 @@ pub fn main() -> Result<()> {
         panic!("Output file already exists. Use --overwrite to overwrite it.");
     }
 
-    let input_files = read_dir(input).unwrap()
-                                     .map(|item| item.expect("Error while globbing input path")
-                                                     .path()
-                                                     .to_str()
-                                                     .expect("Could not parse file name")
-                                                     .to_owned()
-                                     )
-                                     .collect::<Vec<_>>();
+    let mut input_files = read_dir(input).unwrap()
+                                         .map(|item| item.expect("Error while globbing input path").path())
+                                         .filter(|path| path.is_file())
+                                         .map(|path| path.to_str()
+                                                        .expect("Could not parse file name")
+                                                        .to_owned()
+                                         )
+                                         .collect::<Vec<_>>();
+    input_files.sort();
     let n_files = input_files.len();
 
     if n_files == 0 {
