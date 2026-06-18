@@ -21,10 +21,16 @@ run bin *args:
 hdfy-many folder *args: build-release
   #!/usr/bin/env sh
 
-  for f in `find {{folder}}/* -type d`; do
-      stdbuf -oL       ./target/release/hdfy -i $f -o $f.h5 {{args}} --batch &
-      echo "JOB $i has PID $!"
-      if [ $((i % 11)) -eq 10 ]; then
+  njobs=$(find "{{folder}}" -mindepth 1 -maxdepth 1 -type d | wc -l)
+  i=0
+
+  for f in "{{folder}}"/*; do
+      [ -d "$f" ] || continue
+      i=$((i + 1))
+
+      stdbuf -oL       ./target/release/hdfy -i "$f" -o "$f.h5" {{args}} --batch &
+      echo "Process for folder $f has PID $!"
+      if [ $((i % 11)) -eq 0 ]; then
           echo "Waiting to schedule more jobs ($((njobs-i)) remaining)"
           wait
       fi
