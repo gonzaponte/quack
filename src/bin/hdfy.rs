@@ -46,7 +46,7 @@ pub fn main() -> Result<()> {
     }
 
     let output = Path::new(&args.output);
-    if output.exists() & !args.overwrite {
+    if output.exists() && !args.overwrite {
         panic!("Output file already exists. Use --overwrite to overwrite it.");
     }
 
