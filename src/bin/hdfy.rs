@@ -92,6 +92,9 @@ pub fn main() -> Result<()> {
         }
         pb.inc(1);
     }
+    evt_writer.flush()?;
+     wf_writer.flush()?;
+
     pb.finish();
 
     let time = (0..nsamples).map(|k| k as f32 * sampling_time)
