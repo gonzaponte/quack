@@ -18,6 +18,9 @@ debug bin *args:
 run bin *args:
     cargo run --release --bin {{bin}} -- {{args}}
 
+hdfy folder *args: build-release
+  just run hdfy -i {{folder}} -o {{folder}}.h5 {{args}}
+
 hdfy-many folder *args: build-release
   #!/usr/bin/env sh
 
